@@ -1,22 +1,77 @@
 .game-page {
-  padding: 1rem;
+  padding: 2rem 1rem;
   max-width: 800px;
   margin: 0 auto;
 }
 
+.game-page .card {
+  border: none;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 12px;
+}
+
+.game-page .card-header {
+  background: none;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1rem;
+}
+
+.game-page .card-body {
+  padding: 2rem;
+}
+
 .current-game {
-  width: 250px;
-  height: 250px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin: 0 auto;
+  gap: 2rem;
 }
 
 .country-svg {
+  width: 300px;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.country-svg:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.country-svg svg {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  max-width: 100%;
-  max-height: 100%;
+}
+
+.country-select {
+    min-width: 300px;
+}
+
+.country-select .country-select__control {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.country-select .country-select__control:hover {
+  border-color: #adb5bd;
+}
+
+.country-select .country-select__menu {
+  border: none;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  border-radius: 8px;
+}
+
+.country-select .country-select__option {
+  padding: 0.5rem 1rem;
 }

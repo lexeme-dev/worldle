@@ -78,7 +78,9 @@ def list_countries(db: Annotated[Session, Depends(get_db)]):
         return _COUNTRIES_CACHE[cache_key]
 
     countries = db.scalars(
-        select(Country).options(defer(Country.geometry), defer(Country.geo_point))
+        select(Country)
+        .options(defer(Country.geometry), defer(Country.geo_point))
+        .order_by(Country.name.asc())
     ).all()
     _COUNTRIES_CACHE[cache_key] = [CountryItem.model_validate(c) for c in countries]
     return _COUNTRIES_CACHE[cache_key]

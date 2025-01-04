@@ -9,6 +9,7 @@ import {
 } from "../client/@tanstack/react-query.gen";
 import { useUser } from "../contexts/UserContext";
 import "./GamePage.css";
+import GamePlayer from "../components/GamePlayer";
 
 const GamePage: React.FC = () => {
   const { uuid } = useUser();
@@ -39,16 +40,6 @@ const GamePage: React.FC = () => {
     });
   };
 
-  const { data: svgContent } = useQuery({
-    queryKey: ["countrySvg", currentGame?.answer_country.svg_url],
-    queryFn: async () => {
-      if (!currentGame?.answer_country.svg_url) return null;
-      const response = await fetch(currentGame.answer_country.svg_url);
-      return response.text();
-    },
-    enabled: !!currentGame?.answer_country.svg_url,
-  });
-
   return (
     <div className="game-page">
       <Card>
@@ -63,14 +54,7 @@ const GamePage: React.FC = () => {
           </Button>
         </Card.Header>
         <Card.Body>
-          {svgContent && (
-            <div className="current-game">
-              <div
-                dangerouslySetInnerHTML={{ __html: svgContent }}
-                className="country-svg"
-              />
-            </div>
-          )}
+          {currentGame && <GamePlayer game={currentGame} />}
         </Card.Body>
       </Card>
     </div>
