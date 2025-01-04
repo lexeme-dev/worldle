@@ -101,6 +101,7 @@ class GuessBase(ApiModel):
     id: int
     guessed_country_id: int
     guessed_country: CountryItem
+    index: int
 
 
 class GuessCreate(BaseModel):

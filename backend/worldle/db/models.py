@@ -4,7 +4,7 @@ import datetime
 
 import geoalchemy2 as ga
 import rl.utils.bucket as bucket_utils
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -73,15 +73,17 @@ class Game(TimestampMixin, Base):
     answer_country: Mapped[Country] = relationship()
     user_client: Mapped[UserClient] = relationship()
 
-    guesses: Mapped[list[Guess]] = relationship(back_populates="game")
+    guesses: Mapped[list[Guess]] = relationship(back_populates="game", lazy="joined")
 
 
 class Guess(TimestampMixin, Base):
     __tablename__ = "guesses"
+    __table_args__ = (UniqueConstraint("game_id", "index", name="uq_guess_game_index"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     game_id: Mapped[int] = mapped_column(ForeignKey("games.id"))
     guessed_country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"))
+    index: Mapped[int] = mapped_column()
 
     game: Mapped[Game] = relationship(back_populates="guesses")
     guessed_country: Mapped[Country] = relationship()

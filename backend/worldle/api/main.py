@@ -153,14 +153,15 @@ def create_guess(
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
 
-    if len(game.guesses) >= MAX_GUESSES:
+    guess_count = len(game.guesses)
+    if guess_count >= MAX_GUESSES:
         raise HTTPException(status_code=400, detail="Maximum guesses reached")
 
     guessed_country = db.get(Country, guess_create.guessed_country_id)
     if not guessed_country:
         raise HTTPException(status_code=404, detail="Country not found")
 
-    guess = Guess(game=game, guessed_country=guessed_country)
+    guess = Guess(game=game, guessed_country=guessed_country, index=guess_count)
     db.add(guess)
     db.commit()
     return guess
