@@ -43,7 +43,7 @@ def get_engine(
     )
 
 
-def new_session(
+def get_session(
     **engine_kwargs,
 ):
     engine = get_engine(**engine_kwargs)

@@ -28,11 +28,22 @@ class Country(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    is_island: Mapped[bool | None]
+    iso2: Mapped[str | None] = mapped_column()
+    iso3: Mapped[str | None] = mapped_column()
+    status: Mapped[str | None] = mapped_column()
+    continent: Mapped[str | None] = mapped_column()
+    region: Mapped[str | None] = mapped_column()
+    parent_iso3: Mapped[str | None] = mapped_column()
+
     geometry: Mapped[ga.types.Geometry] = mapped_column(
         ga.Geometry(geometry_type="MULTIPOLYGON", srid=4326)
     )
+    geo_point: Mapped[ga.types.Geometry] = mapped_column(
+        ga.Geometry(geometry_type="POINT", srid=4326)
+    )
 
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("countries.id"))
-
-    parent: Mapped[Country | None] = relationship(back_populates="children")
+    parent: Mapped[Country | None] = relationship(
+        remote_side=[id], back_populates="children"
+    )
+    children: Mapped[list[Country]] = relationship(back_populates="parent")

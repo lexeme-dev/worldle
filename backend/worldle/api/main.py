@@ -13,7 +13,7 @@ from worldle.api.interfaces import (
 from worldle.db.models import (
     ProxyPattern,
 )
-from worldle.db.session import new_session
+from worldle.db.session import get_session
 
 app = FastAPI()
 app.add_middleware(
@@ -29,7 +29,7 @@ app.add_middleware(
 
 
 def get_db() -> Session:
-    session = new_session()
+    session = get_session()
     try:
         yield session
     finally:
