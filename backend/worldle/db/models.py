@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import datetime
-from math import atan2, degrees
+import math
 
 import geoalchemy2 as ga
-import rl.utils.bucket as bucket_utils
-from geopy.distance import geodesic
+import geopy.distance
+import rl.utils.bucket
 from shapely import Point
 from sqlalchemy import ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import (
@@ -58,7 +58,7 @@ class Country(TimestampMixin, Base):
 
     @property
     def svg_url(self) -> str:
-        return bucket_utils.get_public_url(self.svg_bucket_path)
+        return rl.utils.bucket.get_public_url(self.svg_bucket_path)
 
     @property
     def geo_point_shp(self) -> Point:
@@ -114,7 +114,7 @@ class Guess(TimestampMixin, Base):
             self.game.answer_country.geo_point_shp.y,
             self.game.answer_country.geo_point_shp.x,
         )
-        return geodesic(guess_point, answer_point).miles
+        return geopy.distance.distance(guess_point, answer_point).miles
 
     @property
     def bearing_to_answer(self) -> float:
@@ -126,7 +126,7 @@ class Guess(TimestampMixin, Base):
         x2, y2 = answer.x + 180, answer.y + 90
 
         # Calculate angle in degrees
-        angle = degrees(atan2(y2 - y1, x2 - x1))
+        angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
         return angle % 360
 
     @property
