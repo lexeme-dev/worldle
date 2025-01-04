@@ -1,19 +1,18 @@
+from collections.abc import Generator
 from typing import Annotated
 
+import rl.utils.io
+from diskcache import Cache
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
-from worldle.api.interfaces import (
-    ProxyPatternCreate,
-    ProxyPatternRead,
-    ProxyPatternUpdate,
-)
-from worldle.db.models import (
-    ProxyPattern,
-)
+from worldle.api.interfaces import CountryItem, CountryRead
+from worldle.db.models import Country
 from worldle.db.session import get_session
+
+_COUNTRIES_CACHE = Cache(rl.utils.io.get_cache_dir("countries"))
 
 app = FastAPI()
 app.add_middleware(
@@ -28,7 +27,7 @@ app.add_middleware(
 # region Dependencies
 
 
-def get_db() -> Session:
+def get_db() -> Generator[Session, None, None]:
     session = get_session()
     try:
         yield session
@@ -36,79 +35,44 @@ def get_db() -> Session:
         session.close()
 
 
-def get_proxy_pattern(
-    db: Annotated[Session, Depends(get_db)], pattern_id: int
-) -> ProxyPattern:
-    proxy_pattern = db.get(ProxyPattern, pattern_id)
-    if not proxy_pattern:
-        raise HTTPException(status_code=404, detail="Proxy pattern not found")
-    return proxy_pattern
+def get_country(db: Annotated[Session, Depends(get_db)], country_id: int) -> Country:
+    country = db.get(Country, country_id)
+    if not country:
+        raise HTTPException(status_code=404, detail="Country not found")
+    return country
 
 
 # endregion
 
 
 @app.get(
-    "/proxy_patterns",
-    response_model=list[ProxyPatternRead],
-    operation_id="listProxyPatterns",
+    "/countries",
+    response_model=list[CountryItem],
+    operation_id="listCountries",
 )
-def list_proxy_patterns(db: Annotated[Session, Depends(get_db)]):
-    return db.scalars(select(ProxyPattern)).all()
+def list_countries(db: Annotated[Session, Depends(get_db)]):
+    cache_key = "__all_countries"
+    if cache_key in _COUNTRIES_CACHE:
+        return _COUNTRIES_CACHE[cache_key]
 
-
-@app.post(
-    "/proxy_patterns",
-    response_model=ProxyPatternRead,
-    operation_id="createProxyPattern",
-)
-def create_proxy_pattern(
-    pattern: ProxyPatternCreate, db: Annotated[Session, Depends(get_db)]
-):
-    db_pattern = ProxyPattern(**pattern.model_dump())
-    db.add(db_pattern)
-    db.commit()
-    db.refresh(db_pattern)
-    return db_pattern
+    countries = db.scalars(
+        select(Country).options(defer(Country.geometry), defer(Country.geo_point))
+    ).all()
+    _COUNTRIES_CACHE[cache_key] = [CountryItem.model_validate(c) for c in countries]
+    return _COUNTRIES_CACHE[cache_key]
 
 
 @app.get(
-    "/proxy_patterns/{pattern_id}",
-    response_model=ProxyPatternRead,
-    operation_id="readProxyPattern",
+    "/countries/{country_id}",
+    response_model=CountryRead,
+    operation_id="readCountry",
 )
-def read_proxy_pattern(
-    proxy_pattern: Annotated[ProxyPattern, Depends(get_proxy_pattern)],
+def read_country(
+    country: Annotated[Country, Depends(get_country)],
 ):
-    return proxy_pattern
+    cache_key = f"__country_{country.id}"
+    if cache_key in _COUNTRIES_CACHE:
+        return _COUNTRIES_CACHE[cache_key]
 
-
-@app.patch(
-    "/proxy_patterns/{pattern_id}",
-    response_model=ProxyPatternRead,
-    operation_id="updateProxyPattern",
-)
-def update_proxy_pattern(
-    pattern_update: ProxyPatternUpdate,
-    proxy_pattern: Annotated[ProxyPattern, Depends(get_proxy_pattern)],
-    db: Annotated[Session, Depends(get_db)],
-):
-    for field, value in pattern_update.model_dump(exclude_unset=True).items():
-        setattr(proxy_pattern, field, value)
-
-    db.commit()
-    db.refresh(proxy_pattern)
-    return proxy_pattern
-
-
-@app.delete(
-    "/proxy_patterns/{pattern_id}",
-    status_code=204,
-    operation_id="deleteProxyPattern",
-)
-def delete_proxy_pattern(
-    proxy_pattern: Annotated[ProxyPattern, Depends(get_proxy_pattern)],
-    db: Annotated[Session, Depends(get_db)],
-):
-    db.delete(proxy_pattern)
-    db.commit()
+    _COUNTRIES_CACHE[cache_key] = CountryRead.model_validate(country)
+    return _COUNTRIES_CACHE[cache_key]
