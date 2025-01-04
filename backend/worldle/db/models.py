@@ -54,3 +54,34 @@ class Country(TimestampMixin, Base):
     @property
     def svg_url(self) -> str:
         return bucket_utils.get_public_url(self.svg_bucket_path)
+
+
+class UserClient(TimestampMixin, Base):
+    __tablename__ = "user_clients"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[str] = mapped_column(unique=True, index=True)
+
+
+class Game(TimestampMixin, Base):
+    __tablename__ = "games"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    answer_country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"))
+    user_client_id: Mapped[int] = mapped_column(ForeignKey("user_clients.id"))
+
+    answer_country: Mapped[Country] = relationship()
+    user_client: Mapped[UserClient] = relationship()
+
+    guesses: Mapped[list[Guess]] = relationship(back_populates="game")
+
+
+class Guess(TimestampMixin, Base):
+    __tablename__ = "guesses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"))
+    guessed_country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"))
+
+    game: Mapped[Game] = relationship(back_populates="guesses")
+    guessed_country: Mapped[Country] = relationship()

@@ -85,5 +85,4 @@ class CountryItem(CountryBase):
 
 
 class CountryRead(CountryBase):
-    geometry: GeoJson
-    geo_point: GeoJson
+    pass
