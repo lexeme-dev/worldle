@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 import geoalchemy2 as ga
@@ -36,8 +37,10 @@ def _ingest_countries(data: list[dict], session: Session) -> None:
         if parent_iso3 == "XXX" or parent_iso3 == iso3:
             parent_iso3 = None
 
+        name = re.sub(r"(.*)\s\((.*)\)", r"\1", record["name"])
+
         country = Country(
-            name=record["name"],
+            name=name,
             iso2=record["iso_3166_1_alpha_2_codes"],
             iso3=record["iso3"],
             status=record["status"],
