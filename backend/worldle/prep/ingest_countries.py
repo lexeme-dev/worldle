@@ -21,6 +21,15 @@ _COUNTRIES_URL = (
 )
 
 
+NAME_FIX_MAP = {
+    "The former Yugoslav Republic of Macedonia": "Macedonia",
+    "U.K. of Great Britain and Northern Ireland": "United Kingdom",
+    "Midway Is.": "Midway Island",
+    "Republic of Moldova": "Moldova",
+    "Republic of Korea": "South Korea",
+}
+
+
 def _ingest_countries(data: list[dict], session: Session) -> None:
     # First pass: create all countries
     country_map: dict[str, Country] = {}
@@ -38,6 +47,7 @@ def _ingest_countries(data: list[dict], session: Session) -> None:
             parent_iso3 = None
 
         name = re.sub(r"(.*)\s\((.*)\)", r"\1", record["name"])
+        name = NAME_FIX_MAP.get(name, name)
 
         country = Country(
             name=name,

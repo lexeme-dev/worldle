@@ -9,6 +9,7 @@ export type CountryItem = {
   continent: string | null;
   region: string | null;
   parent_id: number | null;
+  svg_url: string | null;
 };
 
 export type CountryRead = {
@@ -20,46 +21,54 @@ export type CountryRead = {
   continent: string | null;
   region: string | null;
   parent_id: number | null;
-  geometry: GeoJson;
-  geo_point: GeoJson;
+  svg_url: string | null;
 };
 
-export type GeoJson = {
-  type: "Feature";
-  geometry: GeoJsonGeometry;
-  properties: {
-    [key: string]: unknown;
-  } | null;
+export type GameCreate = {
+  user_client_uuid: string;
 };
 
-export type type = "Feature";
+export type GameItem = {
+  id: number;
+  user_client_id: number;
+  answer_country_id: number;
+  status: GameStatus;
+};
 
-export const type = {
-  FEATURE: "Feature",
+export type GameRead = {
+  id: number;
+  user_client_id: number;
+  answer_country_id: number;
+  status: GameStatus;
+  guesses: Array<GuessRead>;
+};
+
+export type GameStatus = "in_progress" | "won" | "lost";
+
+export const GameStatus = {
+  IN_PROGRESS: "in_progress",
+  WON: "won",
+  LOST: "lost",
 } as const;
 
-export type GeoJsonGeometry = {
-  type: GeoJsonGeometryType;
-  coordinates: Array<unknown>;
+export type GuessCreate = {
+  guessed_country_id: number;
 };
 
-export type GeoJsonGeometryType =
-  | "Point"
-  | "LineString"
-  | "Polygon"
-  | "MultiPolygon"
-  | "MultiLineString";
-
-export const GeoJsonGeometryType = {
-  POINT: "Point",
-  LINE_STRING: "LineString",
-  POLYGON: "Polygon",
-  MULTI_POLYGON: "MultiPolygon",
-  MULTI_LINE_STRING: "MultiLineString",
-} as const;
+export type GuessRead = {
+  id: number;
+  guessed_country_id: number;
+  guessed_country: CountryItem;
+  index: number;
+  game: GameItem;
+};
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
+};
+
+export type UserClientRead = {
+  uuid: string;
 };
 
 export type ValidationError = {
@@ -81,3 +90,46 @@ export type ReadCountryData = {
 export type ReadCountryResponse = CountryRead;
 
 export type ReadCountryError = HTTPValidationError;
+
+export type CreateUserClientResponse = UserClientRead;
+
+export type CreateUserClientError = unknown;
+
+export type ReadUserClientData = {
+  path: {
+    user_client_uuid: string;
+  };
+};
+
+export type ReadUserClientResponse = UserClientRead;
+
+export type ReadUserClientError = HTTPValidationError;
+
+export type CreateGameData = {
+  body: GameCreate;
+};
+
+export type CreateGameResponse = GameRead;
+
+export type CreateGameError = HTTPValidationError;
+
+export type ReadGameData = {
+  path: {
+    game_id: number;
+  };
+};
+
+export type ReadGameResponse = GameRead;
+
+export type ReadGameError = HTTPValidationError;
+
+export type CreateGuessData = {
+  body: GuessCreate;
+  path: {
+    game_id: number;
+  };
+};
+
+export type CreateGuessResponse = GuessRead;
+
+export type CreateGuessError = HTTPValidationError;

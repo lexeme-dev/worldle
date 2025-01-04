@@ -5,7 +5,8 @@ import "./index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { client } from "./client";
-import { ProxyPatternsProvider } from "./contexts/ProxyPatternsContext.tsx";
+import { CountriesProvider } from "./contexts/CountriesContext.tsx";
+import { UserProvider } from "./contexts/UserContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,11 +22,13 @@ client.setConfig({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ProxyPatternsProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ProxyPatternsProvider>
+      <UserProvider>
+        <CountriesProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </CountriesProvider>
+      </UserProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

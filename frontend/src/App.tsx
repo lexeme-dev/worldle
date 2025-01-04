@@ -2,8 +2,6 @@ import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Link, Route, Routes } from "react-router-dom";
 
-import ProxyPatternsCard from "./components/ProxyPatternsCard";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
@@ -23,7 +21,7 @@ const App: React.FC = () => {
         <Row>
           <Col>
             <Routes>
-              <Route path="/" element={<ProxyPatternsCard />} />
+              <Route path="/" element={<div />} />
             </Routes>
           </Col>
         </Row>

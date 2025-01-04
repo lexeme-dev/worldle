@@ -87,5 +87,5 @@ class Guess(TimestampMixin, Base):
     guessed_country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"))
     index: Mapped[int] = mapped_column()
 
-    game: Mapped[Game] = relationship(back_populates="guesses")
+    game: Mapped[Game] = relationship(back_populates="guesses", lazy="joined")
     guessed_country: Mapped[Country] = relationship()

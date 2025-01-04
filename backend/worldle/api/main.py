@@ -1,6 +1,6 @@
+import uuid
 from collections.abc import Generator
 from typing import Annotated
-from uuid import uuid4
 
 import rl.utils.io
 from diskcache import Cache
@@ -53,6 +53,17 @@ def get_country(db: Annotated[Session, Depends(get_db)], country_id: int) -> Cou
     return country
 
 
+def get_user_client(
+    db: Annotated[Session, Depends(get_db)], user_client_uuid: str
+) -> UserClient:
+    user_client = db.scalar(
+        select(UserClient).where(UserClient.uuid == user_client_uuid)
+    )
+    if not user_client:
+        raise HTTPException(status_code=404, detail="User client not found")
+    return user_client
+
+
 # endregion
 
 
@@ -95,10 +106,22 @@ def read_country(
     operation_id="createUserClient",
 )
 def create_user_client(db: Annotated[Session, Depends(get_db)]):
-    client = UserClient(uuid=str(uuid4()))
+    client = UserClient(uuid=str(uuid.uuid4()))
     db.add(client)
     db.commit()
+    db.refresh(client)
     return client
+
+
+@app.get(
+    "/user_clients/{user_client_uuid}",
+    response_model=UserClientRead,
+    operation_id="readUserClient",
+)
+def read_user_client(
+    user_client: Annotated[UserClient, Depends(get_user_client)],
+):
+    return user_client
 
 
 @app.post(
