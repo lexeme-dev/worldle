@@ -77,6 +77,7 @@ class CountryBase(ApiModel):
     continent: str | None
     region: str | None
     parent_id: int | None
+    svg_url: str | None
 
 
 class CountryItem(CountryBase):

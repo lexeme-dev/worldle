@@ -5,7 +5,7 @@ const host = args[0] || "poirot:8054";
 
 export default defineConfig({
   client: "@hey-api/client-fetch",
-  input: host.includes("http")
+  input: host.startsWith("http")
     ? `${host}/openapi.json`
     : `http://${host}/openapi.json`,
   output: {

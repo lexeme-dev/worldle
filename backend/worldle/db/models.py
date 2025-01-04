@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 
 import geoalchemy2 as ga
+import rl.utils.bucket as bucket_utils
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -42,8 +43,14 @@ class Country(TimestampMixin, Base):
         ga.Geometry(geometry_type="POINT", srid=4326)
     )
 
+    svg_bucket_path: Mapped[str | None] = mapped_column()
+
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("countries.id"))
     parent: Mapped[Country | None] = relationship(
         remote_side=[id], back_populates="children"
     )
     children: Mapped[list[Country]] = relationship(back_populates="parent")
+
+    @property
+    def svg_url(self) -> str:
+        return bucket_utils.get_public_url(self.svg_bucket_path)
