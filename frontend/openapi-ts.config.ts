@@ -1,7 +1,7 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
 const args = process.argv.slice(2);
-const host = args[0] || "poirot:8101";
+const host = args[0] || "poirot:8054";
 
 export default defineConfig({
   client: "@hey-api/client-fetch",

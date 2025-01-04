@@ -5,111 +5,46 @@ import {
   createClient,
   createConfig,
 } from "@hey-api/client-fetch";
-import {
-  type CreateProxyPatternData,
-  type CreateProxyPatternError,
-  type CreateProxyPatternResponse,
-  CreateProxyPatternResponseTransformer,
-  type DeleteProxyPatternData,
-  type DeleteProxyPatternError,
-  type DeleteProxyPatternResponse,
-  type ListProxyPatternsError,
-  type ListProxyPatternsResponse,
-  ListProxyPatternsResponseTransformer,
-  type ReadProxyPatternData,
-  type ReadProxyPatternError,
-  type ReadProxyPatternResponse,
-  ReadProxyPatternResponseTransformer,
-  type UpdateProxyPatternData,
-  type UpdateProxyPatternError,
-  type UpdateProxyPatternResponse,
-  UpdateProxyPatternResponseTransformer,
+import type {
+  ListCountriesError,
+  ListCountriesResponse,
+  ReadCountryData,
+  ReadCountryError,
+  ReadCountryResponse,
 } from "./types.gen";
 
 export const client = createClient(createConfig());
 
 export class DefaultService {
   /**
-   * List Proxy Patterns
+   * List Countries
    */
-  public static listProxyPatterns<ThrowOnError extends boolean = false>(
+  public static listCountries<ThrowOnError extends boolean = false>(
     options?: Options<unknown, ThrowOnError>,
   ) {
     return (options?.client ?? client).get<
-      ListProxyPatternsResponse,
-      ListProxyPatternsError,
+      ListCountriesResponse,
+      ListCountriesError,
       ThrowOnError
     >({
       ...options,
-      url: "/proxy_patterns",
-      responseTransformer: ListProxyPatternsResponseTransformer,
+      url: "/countries",
     });
   }
 
   /**
-   * Create Proxy Pattern
+   * Read Country
    */
-  public static createProxyPattern<ThrowOnError extends boolean = false>(
-    options: Options<CreateProxyPatternData, ThrowOnError>,
-  ) {
-    return (options?.client ?? client).post<
-      CreateProxyPatternResponse,
-      CreateProxyPatternError,
-      ThrowOnError
-    >({
-      ...options,
-      url: "/proxy_patterns",
-      responseTransformer: CreateProxyPatternResponseTransformer,
-    });
-  }
-
-  /**
-   * Read Proxy Pattern
-   */
-  public static readProxyPattern<ThrowOnError extends boolean = false>(
-    options: Options<ReadProxyPatternData, ThrowOnError>,
+  public static readCountry<ThrowOnError extends boolean = false>(
+    options: Options<ReadCountryData, ThrowOnError>,
   ) {
     return (options?.client ?? client).get<
-      ReadProxyPatternResponse,
-      ReadProxyPatternError,
+      ReadCountryResponse,
+      ReadCountryError,
       ThrowOnError
     >({
       ...options,
-      url: "/proxy_patterns/{pattern_id}",
-      responseTransformer: ReadProxyPatternResponseTransformer,
-    });
-  }
-
-  /**
-   * Update Proxy Pattern
-   */
-  public static updateProxyPattern<ThrowOnError extends boolean = false>(
-    options: Options<UpdateProxyPatternData, ThrowOnError>,
-  ) {
-    return (options?.client ?? client).patch<
-      UpdateProxyPatternResponse,
-      UpdateProxyPatternError,
-      ThrowOnError
-    >({
-      ...options,
-      url: "/proxy_patterns/{pattern_id}",
-      responseTransformer: UpdateProxyPatternResponseTransformer,
-    });
-  }
-
-  /**
-   * Delete Proxy Pattern
-   */
-  public static deleteProxyPattern<ThrowOnError extends boolean = false>(
-    options: Options<DeleteProxyPatternData, ThrowOnError>,
-  ) {
-    return (options?.client ?? client).delete<
-      DeleteProxyPatternResponse,
-      DeleteProxyPatternError,
-      ThrowOnError
-    >({
-      ...options,
-      url: "/proxy_patterns/{pattern_id}",
+      url: "/countries/{country_id}",
     });
   }
 }
