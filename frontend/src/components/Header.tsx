@@ -25,7 +25,7 @@ const Header: React.FC = () => {
               onClick={() => setActivePane(ActivePane.MAIN)}
               className="text-decoration-none"
             >
-              Worldle Zero
+              Worldle
             </Link>
           </h1>
           <div className="header-icons">
