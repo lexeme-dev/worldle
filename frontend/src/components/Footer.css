@@ -1,0 +1,18 @@
+.app-footer {
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+.app-footer a {
+  color: #6c757d;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.app-footer a:hover {
+  color: #3498db;
+}

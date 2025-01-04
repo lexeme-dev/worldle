@@ -1,0 +1,47 @@
+.header {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.app-title a {
+  color: #2c3e50;
+  transition: color 0.2s ease;
+}
+
+.app-title a:hover {
+  color: #3498db;
+}
+
+.header-icons {
+  position: absolute;
+  right: calc((100% - 800px) / 2 + 4.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 1rem;
+}
+
+.header-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #2c3e50;
+  transition: color 0.2s ease;
+}
+
+.header-icon:hover, .header-icon.active {
+  color: #3498db;
+}
+
+@media (max-width: 832px) {
+  .header-icons {
+    right: 1.2rem;
+  }
+}
