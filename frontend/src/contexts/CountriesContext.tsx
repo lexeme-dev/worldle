@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { createContext, useContext } from "react";
-import { CountryItem, DefaultService } from "../client";
+import { CountryItem } from "../client";
 import { listCountriesOptions } from "../client/@tanstack/react-query.gen";
 
 interface CountriesContext {

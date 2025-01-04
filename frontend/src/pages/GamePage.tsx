@@ -7,7 +7,6 @@ import {
   readCurrentGameOptions,
   readCurrentGameQueryKey,
   readGameOptions,
-  readGameQueryKey,
 } from "../client/@tanstack/react-query.gen";
 import { useUser } from "../contexts/UserContext";
 import "./GamePage.css";
