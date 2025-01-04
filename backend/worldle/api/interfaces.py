@@ -12,7 +12,7 @@ from sqlalchemy.orm import LoaderCallableStatus
 from typing_extensions import TypedDict
 
 from worldle.db.models import Base
-from worldle.utils.game import GameStatus
+from worldle.utils.game import CompassDirection, GameStatus
 
 
 class GeoJsonGeometryType(StrEnum):
@@ -109,6 +109,10 @@ class GuessItem(GuessBase):
 
 class GuessRead(GuessBase):
     game: GameRead
+    is_correct: bool
+    distance_to_answer_miles: float
+    bearing_to_answer: float
+    compass_direction_to_answer: CompassDirection
 
 
 class GuessCreate(BaseModel):

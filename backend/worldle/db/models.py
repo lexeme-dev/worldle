@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import datetime
+from math import atan2, cos, degrees, radians, sin
 
 import geoalchemy2 as ga
 import rl.utils.bucket as bucket_utils
+from geopy.distance import geodesic
+from shapely import Point
 from sqlalchemy import ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -12,7 +15,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from worldle.utils.game import GameStatus
+from worldle.utils.game import CompassDirection, GameStatus
 
 
 class Base(DeclarativeBase):
@@ -57,6 +60,10 @@ class Country(TimestampMixin, Base):
     def svg_url(self) -> str:
         return bucket_utils.get_public_url(self.svg_bucket_path)
 
+    @property
+    def geo_point_shp(self) -> Point:
+        return ga.shape.to_shape(self.geo_point)
+
 
 class UserClient(TimestampMixin, Base):
     __tablename__ = "user_clients"
@@ -89,3 +96,56 @@ class Guess(TimestampMixin, Base):
 
     game: Mapped[Game] = relationship(back_populates="guesses", lazy="joined")
     guessed_country: Mapped[Country] = relationship()
+
+    @property
+    def is_correct(self) -> bool:
+        return self.guessed_country_id == self.game.answer_country_id
+
+    @property
+    def distance_to_answer_miles(self) -> float:
+        guess_point = (
+            self.guessed_country.geo_point_shp.y,
+            self.guessed_country.geo_point_shp.x,
+        )
+        answer_point = (
+            self.game.answer_country.geo_point_shp.y,
+            self.game.answer_country.geo_point_shp.x,
+        )
+        return geodesic(guess_point, answer_point).miles
+
+    @property
+    def bearing_to_answer(self) -> float:
+        lat1, lon1 = (
+            radians(self.guessed_country.geo_point_shp.y),
+            radians(self.guessed_country.geo_point_shp.x),
+        )
+        lat2, lon2 = (
+            radians(self.game.answer_country.geo_point_shp.y),
+            radians(self.game.answer_country.geo_point_shp.x),
+        )
+
+        d_lon = lon2 - lon1
+        x = sin(d_lon) * cos(lat2)
+        y = cos(lat1) * sin(lat2) - (sin(lat1) * cos(lat2) * cos(d_lon))
+        initial_bearing = atan2(x, y)
+        initial_bearing = degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        return compass_bearing
+
+    @property
+    def compass_direction_to_answer(self) -> CompassDirection:
+        bearing = self.bearing_to_answer
+        directions = [
+            (CompassDirection.NORTH, 0),
+            (CompassDirection.NORTH_EAST, 45),
+            (CompassDirection.EAST, 90),
+            (CompassDirection.SOUTH_EAST, 135),
+            (CompassDirection.SOUTH, 180),
+            (CompassDirection.SOUTH_WEST, 225),
+            (CompassDirection.WEST, 270),
+            (CompassDirection.NORTH_WEST, 315),
+        ]
+        for direction, angle in directions:
+            if (bearing >= angle - 22.5) and (bearing < angle + 22.5):
+                return direction
+        return CompassDirection.NORTH  # Default case
