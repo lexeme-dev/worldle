@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Trophy } from "react-bootstrap-icons";
 import { DefaultService } from "../client";
 import { readGameQueryKey } from "../client/@tanstack/react-query.gen";
@@ -45,6 +45,10 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ game, onNewGame }) => {
       setSelectedCountry(undefined);
     },
   });
+
+  const alreadyGuessedCountryIds = new Set(
+    game.guesses.map((g) => g.guessed_country.id),
+  );
 
   const { data: svgContent } = useQuery({
     queryKey: ["countrySvg", game.answer_country.svg_url],
@@ -92,17 +96,38 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ game, onNewGame }) => {
           ) : (
             <div className="country-select-container">
               <CountrySelect
-                countries={countries}
+                countries={countries.filter(
+                  (c) => !alreadyGuessedCountryIds.has(c.id),
+                )}
                 selectedCountry={selectedCountry}
                 onSelect={setSelectedCountry}
+                key={game.guesses.length}
               />
-              <Button
-                className="mt-3 w-100"
-                disabled={!selectedCountry || guessMutation.isPending}
-                onClick={() => guessMutation.mutate()}
-              >
-                Make Guess
-              </Button>
+              {!selectedCountry || guessMutation.isPending ? (
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip>
+                      {!selectedCountry
+                        ? "Select a country to make a guess"
+                        : "Submitting guess..."}
+                    </Tooltip>
+                  }
+                >
+                  <span className="d-inline-block w-100">
+                    <Button className="mt-3 w-100" disabled={true}>
+                      Make Guess
+                    </Button>
+                  </span>
+                </OverlayTrigger>
+              ) : (
+                <Button
+                  className="mt-3 w-100"
+                  onClick={() => guessMutation.mutate()}
+                >
+                  Make Guess
+                </Button>
+              )}
             </div>
           )}
           <GuessList guesses={game.guesses} gameStatus={game.status} />

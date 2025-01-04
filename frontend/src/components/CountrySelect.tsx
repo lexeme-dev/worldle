@@ -3,9 +3,9 @@ import Select from "react-select";
 import { CountryItem } from "../client/types.gen";
 
 interface CountrySelectProps {
-  onSelect: (country: CountryItem) => void;
   countries: CountryItem[];
-  selectedCountry?: CountryItem;
+  selectedCountry: CountryItem | undefined;
+  onSelect: (country: CountryItem | undefined) => void;
 }
 
 const CountrySelect: React.FC<CountrySelectProps> = ({
@@ -23,7 +23,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
       placeholder="Select a country..."
       className="country-select"
       classNamePrefix="country-select"
-      isClearable={false}
+      isClearable={true}
     />
   );
 };
