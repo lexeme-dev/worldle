@@ -14,6 +14,7 @@ import type {
   CreateUserClientError,
   CreateUserClientResponse,
   ReadCountryData,
+  ReadCurrentGameData,
   ReadGameData,
   ReadUserClientData,
 } from "../types.gen";
@@ -143,6 +144,27 @@ export const readUserClientOptions = (options: Options<ReadUserClientData>) => {
       return data;
     },
     queryKey: readUserClientQueryKey(options),
+  });
+};
+
+export const readCurrentGameQueryKey = (
+  options: Options<ReadCurrentGameData>,
+) => [createQueryKey("readCurrentGame", options)];
+
+export const readCurrentGameOptions = (
+  options: Options<ReadCurrentGameData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DefaultService.readCurrentGame({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: readCurrentGameQueryKey(options),
   });
 };
 

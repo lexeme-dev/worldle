@@ -28,25 +28,20 @@ export type GameCreate = {
   user_client_uuid: string;
 };
 
-export type GameItem = {
-  id: number;
-  user_client_id: number;
-  answer_country_id: number;
-  status: GameStatus;
-};
-
 export type GameRead = {
   id: number;
   user_client_id: number;
   answer_country_id: number;
   status: GameStatus;
+  answer_country: CountryItem;
   guesses: Array<GuessRead>;
 };
 
-export type GameStatus = "in_progress" | "won" | "lost";
+export type GameStatus = "in_progress" | "abandoned" | "won" | "lost";
 
 export const GameStatus = {
   IN_PROGRESS: "in_progress",
+  ABANDONED: "abandoned",
   WON: "won",
   LOST: "lost",
 } as const;
@@ -60,7 +55,7 @@ export type GuessRead = {
   guessed_country_id: number;
   guessed_country: CountryItem;
   index: number;
-  game: GameItem;
+  game: GameRead;
 };
 
 export type HTTPValidationError = {
@@ -105,6 +100,16 @@ export type ReadUserClientResponse = UserClientRead;
 
 export type ReadUserClientError = HTTPValidationError;
 
+export type ReadCurrentGameData = {
+  path: {
+    user_client_uuid: string;
+  };
+};
+
+export type ReadCurrentGameResponse = GameRead | null;
+
+export type ReadCurrentGameError = HTTPValidationError;
+
 export type CreateGameData = {
   body: GameCreate;
 };
@@ -133,3 +138,54 @@ export type CreateGuessData = {
 export type CreateGuessResponse = GuessRead;
 
 export type CreateGuessError = HTTPValidationError;
+
+export type CreateGameResponseTransformer = (
+  data: any,
+) => Promise<CreateGameResponse>;
+
+export type GameReadModelResponseTransformer = (data: any) => GameRead;
+
+export type GuessReadModelResponseTransformer = (data: any) => GuessRead;
+
+export const GuessReadModelResponseTransformer: GuessReadModelResponseTransformer =
+  (data) => {
+    if (data?.game) {
+      GameReadModelResponseTransformer(data.game);
+    }
+    return data;
+  };
+
+export const GameReadModelResponseTransformer: GameReadModelResponseTransformer =
+  (data) => {
+    if (Array.isArray(data?.guesses)) {
+      data.guesses.forEach(GuessReadModelResponseTransformer);
+    }
+    return data;
+  };
+
+export const CreateGameResponseTransformer: CreateGameResponseTransformer =
+  async (data) => {
+    GameReadModelResponseTransformer(data);
+    return data;
+  };
+
+export type ReadGameResponseTransformer = (
+  data: any,
+) => Promise<ReadGameResponse>;
+
+export const ReadGameResponseTransformer: ReadGameResponseTransformer = async (
+  data,
+) => {
+  GameReadModelResponseTransformer(data);
+  return data;
+};
+
+export type CreateGuessResponseTransformer = (
+  data: any,
+) => Promise<CreateGuessResponse>;
+
+export const CreateGuessResponseTransformer: CreateGuessResponseTransformer =
+  async (data) => {
+    GuessReadModelResponseTransformer(data);
+    return data;
+  };

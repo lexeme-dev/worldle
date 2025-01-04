@@ -17,7 +17,7 @@ from worldle.db.models import Country
 from worldle.db.session import get_session
 
 _DEFAULT_SVG_DIR = rl.utils.io.get_data_path("country_svgs")
-_TARGET_SIZE = 512  # pixels for the longer dimension
+_TARGET_SIZE = 256  # pixels for the longer dimension
 
 # Create transformer from WGS84 (EPSG:4326) to Web Mercator (EPSG:3857)
 _TRANSFORMER = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)

@@ -32,10 +32,10 @@ export const UserProvider: React.FC<{
 
       try {
         // Verify the stored UUID is valid
-        await DefaultService.readUserClient({
+        const { data: userClient } = await DefaultService.readUserClient({
           path: { user_client_uuid: storedUuid },
         });
-        return storedUuid;
+        return userClient.uuid;
       } catch (error) {
         // If the UUID is invalid, create a new one
         localStorage.removeItem(USER_UUID_KEY);

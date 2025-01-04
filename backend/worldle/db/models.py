@@ -39,10 +39,10 @@ class Country(TimestampMixin, Base):
     parent_iso3: Mapped[str | None] = mapped_column()
 
     geometry: Mapped[ga.types.Geometry] = mapped_column(
-        ga.Geometry(geometry_type="MULTIPOLYGON", srid=4326)
+        ga.Geometry(geometry_type="MULTIPOLYGON", srid=4326), deferred=True
     )
     geo_point: Mapped[ga.types.Geometry] = mapped_column(
-        ga.Geometry(geometry_type="POINT", srid=4326)
+        ga.Geometry(geometry_type="POINT", srid=4326), deferred=True
     )
 
     svg_bucket_path: Mapped[str | None] = mapped_column()
@@ -73,7 +73,7 @@ class Game(TimestampMixin, Base):
     user_client_id: Mapped[int] = mapped_column(ForeignKey("user_clients.id"))
     status: Mapped[GameStatus] = mapped_column(String(), default=GameStatus.IN_PROGRESS)
 
-    answer_country: Mapped[Country] = relationship()
+    answer_country: Mapped[Country] = relationship(lazy="joined")
     user_client: Mapped[UserClient] = relationship()
     guesses: Mapped[list[Guess]] = relationship(back_populates="game", lazy="joined")
 

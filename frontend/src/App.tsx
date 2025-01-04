@@ -1,6 +1,8 @@
 import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Link, Route, Routes } from "react-router-dom";
+import ReadyGate from "./components/ReadyGate";
+import GamePage from "./pages/GamePage";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -17,11 +19,13 @@ const App: React.FC = () => {
           </h1>
         </Col>
       </Row>
-      <Container className="main-content">
+      <Container className="main-content py-2">
         <Row>
           <Col>
             <Routes>
-              <Route path="/" element={<div />} />
+              <Route element={<ReadyGate />}>
+                <Route path="/" element={<GamePage />} />
+              </Route>
             </Routes>
           </Col>
         </Row>

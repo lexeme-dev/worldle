@@ -124,6 +124,24 @@ def read_user_client(
     return user_client
 
 
+@app.get(
+    "/user_clients/{user_client_uuid}/current_game",
+    response_model=GameRead | None,
+    operation_id="readCurrentGame",
+)
+def read_current_game(
+    db: Annotated[Session, Depends(get_db)],
+    user_client: Annotated[UserClient, Depends(get_user_client)],
+):
+    return db.scalar(
+        select(Game)
+        .where(Game.user_client_id == user_client.id)
+        .where(Game.status == GameStatus.IN_PROGRESS)
+        .order_by(Game.created_at.desc())
+        .limit(1)
+    )
+
+
 @app.post(
     "/games",
     response_model=GameRead,
@@ -139,12 +157,26 @@ def create_game(
     if not user_client:
         raise HTTPException(status_code=404, detail="User client not found")
 
-    # Get random country for answer
-    answer_country = db.scalar(select(Country).order_by(func.random()))
+    active_game = db.scalar(
+        select(Game)
+        .where(Game.user_client_id == user_client.id)
+        .where(Game.status == GameStatus.IN_PROGRESS)
+    )
+    if active_game:
+        # TODO: Should we do this here or require a separate API call first?
+        active_game.status = GameStatus.ABANDONED
 
-    game = Game(user_client=user_client, answer_country=answer_country)
+    # Get random country for answer
+    answer_country = db.scalar(select(Country).order_by(func.random()).limit(1))
+
+    game = Game(
+        user_client=user_client,
+        answer_country=answer_country,
+        status=GameStatus.IN_PROGRESS,
+    )
     db.add(game)
     db.commit()
+    db.refresh(game)
     return game
 
 
@@ -198,4 +230,5 @@ def create_guess(
         game.status = GameStatus.LOST
 
     db.commit()
+    db.refresh(guess)
     return guess

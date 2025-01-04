@@ -8,6 +8,7 @@ import geoalchemy2 as ga
 import shapely.wkb
 import sqlalchemy as sa
 from pydantic import BaseModel, ConfigDict, model_validator
+from sqlalchemy.orm import LoaderCallableStatus
 from typing_extensions import TypedDict
 
 from worldle.db.models import Base
@@ -46,7 +47,9 @@ class ApiModel(BaseModel):
 
         # Handle regular attributes
         for k, v in inspector.attrs.items():
-            if isinstance(v.loaded_value, ga.elements.WKBElement):
+            if v.loaded_value == LoaderCallableStatus.NO_VALUE:
+                output[k] = None
+            elif isinstance(v.loaded_value, ga.elements.WKBElement):
                 output[k] = {
                     "type": "Feature",
                     "geometry": shapely.geometry.mapping(
@@ -105,7 +108,7 @@ class GuessItem(GuessBase):
 
 
 class GuessRead(GuessBase):
-    game: GameItem
+    game: GameRead
 
 
 class GuessCreate(BaseModel):
@@ -117,6 +120,8 @@ class GameBase(ApiModel):
     user_client_id: int
     answer_country_id: int
     status: GameStatus
+
+    answer_country: CountryItem
 
 
 class GameCreate(BaseModel):
