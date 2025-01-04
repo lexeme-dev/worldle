@@ -5,32 +5,29 @@ import {
   createClient,
   createConfig,
 } from "@hey-api/client-fetch";
-import {
-  type CreateGameData,
-  type CreateGameError,
-  type CreateGameResponse,
-  CreateGameResponseTransformer,
-  type CreateGuessData,
-  type CreateGuessError,
-  type CreateGuessResponse,
-  CreateGuessResponseTransformer,
-  type CreateUserClientError,
-  type CreateUserClientResponse,
-  type ListCountriesError,
-  type ListCountriesResponse,
-  type ReadCountryData,
-  type ReadCountryError,
-  type ReadCountryResponse,
-  type ReadCurrentGameData,
-  type ReadCurrentGameError,
-  type ReadCurrentGameResponse,
-  type ReadGameData,
-  type ReadGameError,
-  type ReadGameResponse,
-  ReadGameResponseTransformer,
-  type ReadUserClientData,
-  type ReadUserClientError,
-  type ReadUserClientResponse,
+import type {
+  CreateGameData,
+  CreateGameError,
+  CreateGameResponse,
+  CreateGuessData,
+  CreateGuessError,
+  CreateGuessResponse,
+  CreateUserClientError,
+  CreateUserClientResponse,
+  ListCountriesError,
+  ListCountriesResponse,
+  ReadCountryData,
+  ReadCountryError,
+  ReadCountryResponse,
+  ReadCurrentGameData,
+  ReadCurrentGameError,
+  ReadCurrentGameResponse,
+  ReadGameData,
+  ReadGameError,
+  ReadGameResponse,
+  ReadUserClientData,
+  ReadUserClientError,
+  ReadUserClientResponse,
 } from "./types.gen";
 
 export const client = createClient(createConfig());
@@ -129,7 +126,6 @@ export class DefaultService {
     >({
       ...options,
       url: "/games",
-      responseTransformer: CreateGameResponseTransformer,
     });
   }
 
@@ -146,7 +142,6 @@ export class DefaultService {
     >({
       ...options,
       url: "/games/{game_id}",
-      responseTransformer: ReadGameResponseTransformer,
     });
   }
 
@@ -163,7 +158,6 @@ export class DefaultService {
     >({
       ...options,
       url: "/games/{game_id}/guesses",
-      responseTransformer: CreateGuessResponseTransformer,
     });
   }
 }

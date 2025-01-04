@@ -169,7 +169,12 @@ def create_game(
         active_game.status = GameStatus.ABANDONED
 
     # Get random country for answer
-    answer_country = db.scalar(select(Country).order_by(func.random()).limit(1))
+    answer_country = db.scalar(
+        select(Country)
+        .where(Country.svg_bucket_path.isnot(None))
+        .order_by(func.random())
+        .limit(1)
+    )
 
     game = Game(
         user_client=user_client,

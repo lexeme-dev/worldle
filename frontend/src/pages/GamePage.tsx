@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Card } from "react-bootstrap";
 import { PlusCircle } from "react-bootstrap-icons";
 import {
   createGameMutation,
   readCurrentGameOptions,
   readCurrentGameQueryKey,
+  readGameOptions,
+  readGameQueryKey,
 } from "../client/@tanstack/react-query.gen";
 import { useUser } from "../contexts/UserContext";
 import "./GamePage.css";
@@ -19,6 +21,13 @@ const GamePage: React.FC = () => {
     ...readCurrentGameOptions({
       path: { user_client_uuid: uuid },
     }),
+  });
+
+  const { data: game } = useQuery({
+    ...readGameOptions({
+      path: { game_id: currentGame?.id },
+    }),
+    enabled: !!currentGame,
   });
 
   const createGame = useMutation({
@@ -54,7 +63,7 @@ const GamePage: React.FC = () => {
           </Button>
         </Card.Header>
         <Card.Body>
-          {currentGame && <GamePlayer game={currentGame} />}
+          {game && <GamePlayer game={game} onNewGame={handleNewGame} />}
         </Card.Body>
       </Card>
     </div>

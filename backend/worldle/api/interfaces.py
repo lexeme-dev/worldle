@@ -1,17 +1,11 @@
 from __future__ import annotations
 
-import math
 from enum import StrEnum
 from typing import Any, Literal
 
-import geoalchemy2 as ga
-import shapely.wkb
-import sqlalchemy as sa
-from pydantic import BaseModel, ConfigDict, model_validator
-from sqlalchemy.orm import LoaderCallableStatus
+from pydantic import BaseModel, ConfigDict
 from typing_extensions import TypedDict
 
-from worldle.db.models import Base
 from worldle.utils.game import CompassDirection, GameStatus
 
 
@@ -36,40 +30,6 @@ class GeoJson(TypedDict):
 
 class ApiModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
-    @model_validator(mode="before")
-    def transform_wkb(cls, obj: Any, *args, **kwargs) -> Any:
-        if not isinstance(obj, Base):
-            return obj
-
-        output = {}
-        inspector = sa.inspect(obj)
-
-        # Handle regular attributes
-        for k, v in inspector.attrs.items():
-            if v.loaded_value == LoaderCallableStatus.NO_VALUE:
-                output[k] = None
-            elif isinstance(v.loaded_value, ga.elements.WKBElement):
-                output[k] = {
-                    "type": "Feature",
-                    "geometry": shapely.geometry.mapping(
-                        shapely.wkb.loads(bytes(v.loaded_value.data))
-                    ),
-                    "properties": {},
-                }
-            elif isinstance(v.loaded_value, float) and (
-                math.isnan(v.loaded_value) or math.isinf(v.loaded_value)
-            ):
-                output[k] = None
-            else:
-                output[k] = v.loaded_value
-
-        # Include @property methods
-        for k in dir(obj.__class__):
-            if isinstance(getattr(obj.__class__, k), property):
-                output[k] = getattr(obj, k)
-
-        return output
 
 
 class CountryBase(ApiModel):
@@ -101,6 +61,11 @@ class GuessBase(ApiModel):
     guessed_country_id: int
     guessed_country: CountryItem
     index: int
+    is_correct: bool
+    distance_to_answer_miles: float
+    bearing_to_answer: float
+    compass_direction_to_answer: CompassDirection
+    proximity_prop: float
 
 
 class GuessItem(GuessBase):
@@ -109,13 +74,9 @@ class GuessItem(GuessBase):
 
 class GuessRead(GuessBase):
     game: GameRead
-    is_correct: bool
-    distance_to_answer_miles: float
-    bearing_to_answer: float
-    compass_direction_to_answer: CompassDirection
 
 
-class GuessCreate(BaseModel):
+class GuessCreate(ApiModel):
     guessed_country_id: int
 
 
@@ -128,7 +89,7 @@ class GameBase(ApiModel):
     answer_country: CountryItem
 
 
-class GameCreate(BaseModel):
+class GameCreate(ApiModel):
     user_client_uuid: str
 
 
@@ -137,4 +98,4 @@ class GameItem(GameBase):
 
 
 class GameRead(GameBase):
-    guesses: list[GuessRead]
+    guesses: list[GuessItem]

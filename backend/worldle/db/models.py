@@ -85,6 +85,9 @@ class Game(TimestampMixin, Base):
     guesses: Mapped[list[Guess]] = relationship(back_populates="game", lazy="joined")
 
 
+EARTH_MAX_DISTANCE_MILES = 12_450  # Max distance between two points on Earth
+
+
 class Guess(TimestampMixin, Base):
     __tablename__ = "guesses"
     __table_args__ = (UniqueConstraint("game_id", "index", name="uq_guess_game_index"),)
@@ -149,3 +152,10 @@ class Guess(TimestampMixin, Base):
             if (bearing >= angle - 22.5) and (bearing < angle + 22.5):
                 return direction
         return CompassDirection.NORTH  # Default case
+
+    @property
+    def proximity_prop(self) -> float:
+        normalized_distance = min(
+            self.distance_to_answer_miles / EARTH_MAX_DISTANCE_MILES, 1
+        )
+        return 1 - normalized_distance

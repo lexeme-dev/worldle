@@ -31,19 +31,12 @@ export const UserProvider: React.FC<{
         return createUserClient.mutateAsync();
       }
 
-      try {
-        console.log("Verifying user client", storedUuid);
-        // Verify the stored UUID is valid
-        const { data: userClient } = await DefaultService.readUserClient({
-          path: { user_client_uuid: storedUuid },
-        });
-        return userClient.uuid;
-      } catch (error) {
-        // If the UUID is invalid, create a new one
-        console.log("User client verification failed, creating a new one");
-        localStorage.removeItem(USER_UUID_KEY);
-        return createUserClient.mutateAsync();
-      }
+      console.log("Verifying user client", storedUuid);
+      // Verify the stored UUID is valid
+      const { data: userClient } = await DefaultService.readUserClient({
+        path: { user_client_uuid: storedUuid },
+      });
+      return userClient.uuid;
     },
   });
 

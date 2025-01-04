@@ -55,7 +55,10 @@ def _generate_svg(country: Country, output_dir: Path) -> tuple[Path, str]:
 
     output_path = output_dir / f"{country.iso3}.svg"
     dwg.saveas(output_path)
-    return output_path, image_utils.get_file_sha1(output_path)
+    file_sha1 = image_utils.get_file_sha1(output_path)
+    if file_sha1 is None:
+        return output_path, None
+    return output_path, file_sha1
 
 
 @click.command()
@@ -79,6 +82,9 @@ def main(output_dir: Path) -> None:
 
         for country in tqdm.tqdm(countries, desc="Generating SVGs"):
             svg_path, sha1 = _generate_svg(country, output_dir)
+            if sha1 is None:
+                country.svg_bucket_path = None
+                continue
             bucket_path = image_utils.get_image_bucket_path(sha1)
             if sha1 not in existing_hashes:
                 upload_args.append((svg_path, bucket_path, fs))

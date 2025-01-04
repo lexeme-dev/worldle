@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { createContext, useContext } from "react";
 import { CountryItem, DefaultService } from "../client";
+import { listCountriesOptions } from "../client/@tanstack/react-query.gen";
 
 interface CountriesContext {
   getCountry: (id: number) => CountryItem | undefined;
@@ -14,11 +15,8 @@ export const CountriesProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { data: countries, isLoading } = useQuery({
-    queryKey: ["countries"],
-    queryFn: async () => {
-      const { data } = await DefaultService.listCountries();
-      return data;
-    },
+    ...listCountriesOptions(),
+    staleTime: 1000 * 60 * 60 * 24,
   });
 
   const getCountry = (id: number) =>
