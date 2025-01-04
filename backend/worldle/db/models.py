@@ -4,13 +4,15 @@ import datetime
 
 import geoalchemy2 as ga
 import rl.utils.bucket as bucket_utils
-from sqlalchemy import ForeignKey, UniqueConstraint, func
+from sqlalchemy import ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
 )
+
+from worldle.utils.game import GameStatus
 
 
 class Base(DeclarativeBase):
@@ -69,10 +71,10 @@ class Game(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     answer_country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"))
     user_client_id: Mapped[int] = mapped_column(ForeignKey("user_clients.id"))
+    status: Mapped[GameStatus] = mapped_column(String(), default=GameStatus.IN_PROGRESS)
 
     answer_country: Mapped[Country] = relationship()
     user_client: Mapped[UserClient] = relationship()
-
     guesses: Mapped[list[Guess]] = relationship(back_populates="game", lazy="joined")
 
 

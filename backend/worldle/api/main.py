@@ -14,6 +14,7 @@ from worldle.api.interfaces import (
     CountryRead,
     GameCreate,
     GameRead,
+    GameStatus,
     GuessCreate,
     GuessRead,
     UserClientRead,
@@ -153,6 +154,9 @@ def create_guess(
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
 
+    if game.status != GameStatus.IN_PROGRESS:
+        raise HTTPException(status_code=400, detail="Game is already complete")
+
     guess_count = len(game.guesses)
     if guess_count >= MAX_GUESSES:
         raise HTTPException(status_code=400, detail="Maximum guesses reached")
@@ -163,5 +167,12 @@ def create_guess(
 
     guess = Guess(game=game, guessed_country=guessed_country, index=guess_count)
     db.add(guess)
+
+    # Update game status
+    if guessed_country.id == game.answer_country_id:
+        game.status = GameStatus.WON
+    elif guess_count == MAX_GUESSES - 1:  # This is the last guess
+        game.status = GameStatus.LOST
+
     db.commit()
     return guess

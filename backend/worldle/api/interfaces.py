@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from typing_extensions import TypedDict
 
 from worldle.db.models import Base
+from worldle.utils.game import GameStatus
 
 
 class GeoJsonGeometryType(StrEnum):
@@ -116,6 +117,7 @@ class GameBase(ApiModel):
     id: int
     user_client_id: int
     answer_country_id: int
+    status: GameStatus
 
 
 class GameCreate(BaseModel):
