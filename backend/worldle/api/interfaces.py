@@ -63,6 +63,7 @@ class GuessBase(ApiModel):
     index: int
     is_correct: bool
     distance_to_answer_miles: float
+    distance_to_answer_km: float
     bearing_to_answer: float
     compass_direction_to_answer: CompassDirection
     proximity_prop: float

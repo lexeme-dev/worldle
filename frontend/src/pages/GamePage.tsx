@@ -55,7 +55,7 @@ const GamePage: React.FC = () => {
   }, [currentGameLoaded, currentGame, uuid]);
 
   return (
-    <div className="game-page">
+    <div className="content-container">
       <Card>
         <Card.Header className="d-flex justify-content-end align-items-center">
           <Button

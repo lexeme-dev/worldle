@@ -1,3 +1,7 @@
+body {
+  overflow-y: scroll;
+}
+
 body, html {
   height: 100%;
   margin: 0;
@@ -16,6 +20,7 @@ body, html {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
+/* Header styles */
 .header {
   background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -38,16 +43,77 @@ body, html {
   color: #3498db;
 }
 
+.header-icons {
+  position: absolute;
+  right: calc((100% - 800px) / 2 + 4.4rem);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 1rem;
+}
+
+.header-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #2c3e50;
+  transition: color 0.2s ease;
+}
+
+.header-icon:hover, .header-icon.active {
+  color: #3498db;
+}
+
+/* Content layout */
 .main-content {
   padding: 2rem 1rem;
 }
 
+/* Shared card styles */
 .card {
   border: none;
   border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .card-header {
-  background-color: white;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: none;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+/* Shared container styles */
+.content-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Media queries */
+@media (max-width: 832px) {
+  .header-icons {
+    right: 1.2rem;
+  }
+}
+
+.app-footer {
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+.app-footer a {
+  color: #6c757d;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.app-footer a:hover {
+  color: #3498db;
 }

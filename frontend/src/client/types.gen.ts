@@ -78,6 +78,7 @@ export type GuessItem = {
   index: number;
   is_correct: boolean;
   distance_to_answer_miles: number;
+  distance_to_answer_km: number;
   bearing_to_answer: number;
   compass_direction_to_answer: CompassDirection;
   proximity_prop: number;
@@ -90,6 +91,7 @@ export type GuessRead = {
   index: number;
   is_correct: boolean;
   distance_to_answer_miles: number;
+  distance_to_answer_km: number;
   bearing_to_answer: number;
   compass_direction_to_answer: CompassDirection;
   proximity_prop: number;

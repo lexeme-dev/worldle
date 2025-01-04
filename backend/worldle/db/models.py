@@ -105,7 +105,7 @@ class Guess(TimestampMixin, Base):
         return self.guessed_country_id == self.game.answer_country_id
 
     @property
-    def distance_to_answer_miles(self) -> float:
+    def distance_to_answer(self) -> geopy.distance.geodesic:
         guess_point = (
             self.guessed_country.geo_point_shp.y,
             self.guessed_country.geo_point_shp.x,
@@ -114,7 +114,15 @@ class Guess(TimestampMixin, Base):
             self.game.answer_country.geo_point_shp.y,
             self.game.answer_country.geo_point_shp.x,
         )
-        return geopy.distance.distance(guess_point, answer_point).miles
+        return geopy.distance.geodesic(guess_point, answer_point)
+
+    @property
+    def distance_to_answer_miles(self) -> float:
+        return self.distance_to_answer.miles
+
+    @property
+    def distance_to_answer_km(self) -> float:
+        return self.distance_to_answer.km
 
     @property
     def bearing_to_answer(self) -> float:

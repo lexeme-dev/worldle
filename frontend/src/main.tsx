@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { client } from "./client";
 import { CountriesProvider } from "./contexts/CountriesContext.tsx";
 import { UserProvider } from "./contexts/UserContext.tsx";
+import { ViewProvider } from "./contexts/ViewContext.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,9 +25,11 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <UserProvider>
         <CountriesProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <ViewProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ViewProvider>
         </CountriesProvider>
       </UserProvider>
     </QueryClientProvider>
