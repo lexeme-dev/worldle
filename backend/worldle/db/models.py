@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from math import atan2, cos, degrees, radians, sin
+from math import atan2, degrees
 
 import geoalchemy2 as ga
 import rl.utils.bucket as bucket_utils
@@ -118,40 +118,36 @@ class Guess(TimestampMixin, Base):
 
     @property
     def bearing_to_answer(self) -> float:
-        lat1, lon1 = (
-            radians(self.guessed_country.geo_point_shp.y),
-            radians(self.guessed_country.geo_point_shp.x),
-        )
-        lat2, lon2 = (
-            radians(self.game.answer_country.geo_point_shp.y),
-            radians(self.game.answer_country.geo_point_shp.x),
-        )
+        guess = self.guessed_country.geo_point_shp
+        answer = self.game.answer_country.geo_point_shp
 
-        d_lon = lon2 - lon1
-        x = sin(d_lon) * cos(lat2)
-        y = cos(lat1) * sin(lat2) - (sin(lat1) * cos(lat2) * cos(d_lon))
-        initial_bearing = atan2(x, y)
-        initial_bearing = degrees(initial_bearing)
-        compass_bearing = (initial_bearing + 360) % 360
-        return compass_bearing
+        # Convert to Mercator-like coordinates (treating -180,-90 as origin)
+        x1, y1 = guess.x + 180, guess.y + 90
+        x2, y2 = answer.x + 180, answer.y + 90
+
+        # Calculate angle in degrees
+        angle = degrees(atan2(y2 - y1, x2 - x1))
+        return angle % 360
 
     @property
     def compass_direction_to_answer(self) -> CompassDirection:
-        bearing = self.bearing_to_answer
-        directions = [
-            (CompassDirection.NORTH, 0),
-            (CompassDirection.NORTH_EAST, 45),
-            (CompassDirection.EAST, 90),
-            (CompassDirection.SOUTH_EAST, 135),
-            (CompassDirection.SOUTH, 180),
-            (CompassDirection.SOUTH_WEST, 225),
-            (CompassDirection.WEST, 270),
-            (CompassDirection.NORTH_WEST, 315),
-        ]
-        for direction, angle in directions:
-            if (bearing >= angle - 22.5) and (bearing < angle + 22.5):
-                return direction
-        return CompassDirection.NORTH  # Default case
+        angle = self.bearing_to_answer
+        if 22.5 <= angle < 67.5:
+            return CompassDirection.NORTH_EAST
+        elif 67.5 <= angle < 112.5:
+            return CompassDirection.NORTH
+        elif 112.5 <= angle < 157.5:
+            return CompassDirection.NORTH_WEST
+        elif 157.5 <= angle < 202.5:
+            return CompassDirection.WEST
+        elif 202.5 <= angle < 247.5:
+            return CompassDirection.SOUTH_WEST
+        elif 247.5 <= angle < 292.5:
+            return CompassDirection.SOUTH
+        elif 292.5 <= angle < 337.5:
+            return CompassDirection.SOUTH_EAST
+        else:
+            return CompassDirection.EAST
 
     @property
     def proximity_prop(self) -> float:

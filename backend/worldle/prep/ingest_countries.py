@@ -27,6 +27,7 @@ NAME_FIX_MAP = {
     "Midway Is.": "Midway Island",
     "Republic of Moldova": "Moldova",
     "Republic of Korea": "South Korea",
+    "Russian Federation": "Russia",
 }
 
 

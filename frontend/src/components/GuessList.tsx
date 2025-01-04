@@ -32,7 +32,18 @@ const GuessList: React.FC<GuessListProps> = ({ guesses, gameStatus }) => {
               <div className="guess-direction">
                 <ArrowRight
                   style={{
-                    transform: `rotate(${guess.bearing_to_answer}deg)`,
+                    transform: `rotate(${
+                      {
+                        NORTH: 270,
+                        NORTH_EAST: 315,
+                        EAST: 0,
+                        SOUTH_EAST: 45,
+                        SOUTH: 90,
+                        SOUTH_WEST: 135,
+                        WEST: 180,
+                        NORTH_WEST: 225,
+                      }[guess.compass_direction_to_answer]
+                    }deg)`,
                   }}
                 />
               </div>
