@@ -17,6 +17,7 @@ import type {
   ReadCurrentGameData,
   ReadGameData,
   ReadUserClientData,
+  ReadUserStatsData,
 } from "../types.gen";
 
 type QueryKey<TOptions extends Options> = [
@@ -165,6 +166,25 @@ export const readCurrentGameOptions = (
       return data;
     },
     queryKey: readCurrentGameQueryKey(options),
+  });
+};
+
+export const readUserStatsQueryKey = (options: Options<ReadUserStatsData>) => [
+  createQueryKey("readUserStats", options),
+];
+
+export const readUserStatsOptions = (options: Options<ReadUserStatsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DefaultService.readUserStats({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: readUserStatsQueryKey(options),
   });
 };
 

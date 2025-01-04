@@ -22,6 +22,7 @@ from worldle.api.interfaces import (
 from worldle.db.models import Country, Game, Guess, UserClient
 from worldle.db.session import get_session
 from worldle.utils.game import MAX_GUESSES
+from worldle.utils.stats import UserStats, get_user_stats
 
 _COUNTRIES_CACHE = Cache(rl.utils.io.get_cache_dir("countries"))
 
@@ -142,6 +143,18 @@ def read_current_game(
         .order_by(Game.created_at.desc())
         .limit(1)
     )
+
+
+@app.get(
+    "/user_clients/{user_client_uuid}/stats",
+    response_model=UserStats,
+    operation_id="readUserStats",
+)
+def read_user_stats(
+    db: Annotated[Session, Depends(get_db)],
+    user_client: Annotated[UserClient, Depends(get_user_client)],
+):
+    return get_user_stats(user_client.id, db)
 
 
 @app.post(

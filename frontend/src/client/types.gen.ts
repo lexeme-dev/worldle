@@ -106,6 +106,17 @@ export type UserClientRead = {
   uuid: string;
 };
 
+export type UserStats = {
+  num_played?: number;
+  num_won?: number;
+  current_streak?: number;
+  max_streak?: number;
+  guess_distribution?: {
+    [key: string]: number;
+  };
+  readonly win_rate: number;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -149,6 +160,16 @@ export type ReadCurrentGameData = {
 export type ReadCurrentGameResponse = GameRead | null;
 
 export type ReadCurrentGameError = HTTPValidationError;
+
+export type ReadUserStatsData = {
+  path: {
+    user_client_uuid: string;
+  };
+};
+
+export type ReadUserStatsResponse = UserStats;
+
+export type ReadUserStatsError = HTTPValidationError;
 
 export type CreateGameData = {
   body: GameCreate;

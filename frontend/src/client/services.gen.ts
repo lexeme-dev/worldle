@@ -28,6 +28,9 @@ import type {
   ReadUserClientData,
   ReadUserClientError,
   ReadUserClientResponse,
+  ReadUserStatsData,
+  ReadUserStatsError,
+  ReadUserStatsResponse,
 } from "./types.gen";
 
 export const client = createClient(createConfig());
@@ -110,6 +113,22 @@ export class DefaultService {
     >({
       ...options,
       url: "/user_clients/{user_client_uuid}/current_game",
+    });
+  }
+
+  /**
+   * Read User Stats
+   */
+  public static readUserStats<ThrowOnError extends boolean = false>(
+    options: Options<ReadUserStatsData, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<
+      ReadUserStatsResponse,
+      ReadUserStatsError,
+      ThrowOnError
+    >({
+      ...options,
+      url: "/user_clients/{user_client_uuid}/stats",
     });
   }
 

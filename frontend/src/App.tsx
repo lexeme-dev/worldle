@@ -5,6 +5,7 @@ import { Link, Route, Routes } from "react-router-dom";
 import ReadyGate from "./components/ReadyGate";
 import ViewGate from "./components/ViewGate";
 import { SettingsProvider } from "./contexts/SettingsContext";
+import { useUser } from "./contexts/UserContext";
 import { ActivePane, useView } from "./contexts/ViewContext";
 import GamePage from "./pages/GamePage";
 
@@ -13,6 +14,7 @@ import "./App.css";
 
 const App: React.FC = () => {
   const { activePane, setActivePane } = useView();
+  const { uuid } = useUser();
 
   const togglePane = (pane: ActivePane) => {
     setActivePane(activePane === pane ? ActivePane.MAIN : pane);
