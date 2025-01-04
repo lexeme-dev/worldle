@@ -49,16 +49,16 @@ class ApiModel(BaseModel):
                 output[k] = {
                     "type": "Feature",
                     "geometry": shapely.geometry.mapping(
-                        shapely.wkb.loads(bytes(v.value.data))
+                        shapely.wkb.loads(bytes(v.loaded_value.data))
                     ),
                     "properties": {},
                 }
-            elif isinstance(v.value, float) and (
-                math.isnan(v.value) or math.isinf(v.value)
+            elif isinstance(v.loaded_value, float) and (
+                math.isnan(v.loaded_value) or math.isinf(v.loaded_value)
             ):
                 output[k] = None
             else:
-                output[k] = v.value
+                output[k] = v.loaded_value
 
         # Include @property methods
         for k in dir(obj.__class__):
@@ -76,7 +76,7 @@ class CountryBase(ApiModel):
     status: str | None
     continent: str | None
     region: str | None
-    parent_iso3: str | None
+    parent_id: int | None
 
 
 class CountryItem(CountryBase):
@@ -84,5 +84,5 @@ class CountryItem(CountryBase):
 
 
 class CountryRead(CountryBase):
-    geometry: GeoJsonGeometry
-    geo_point: GeoJsonGeometry
+    geometry: GeoJson
+    geo_point: GeoJson
