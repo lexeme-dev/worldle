@@ -13,6 +13,7 @@ const StatsPane: React.FC = () => {
       path: { user_client_uuid: uuid },
     }),
     enabled: !!uuid,
+    refetchInterval: 60000,
   });
 
   if (isLoading) {

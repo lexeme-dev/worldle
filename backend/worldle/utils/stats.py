@@ -39,11 +39,18 @@ def get_user_stats(user_client_id: int, session: Session) -> UserStats:
     # Calculate streaks
     current_streak = 0
     max_streak = 0
-    for game in sorted(games, key=lambda g: g.created_at, reverse=True):
+
+    sorted_games = sorted(games, key=lambda g: g.created_at, reverse=True)
+    if sorted_games and sorted_games[0].status == GameStatus.IN_PROGRESS:
+        # Don't zero out the current streak just because the user is in progress
+        sorted_games.pop(0)
+
+    for game in sorted_games:
         if game.status == GameStatus.WON:
             current_streak += 1
             max_streak = max(max_streak, current_streak)
         else:
+            current_streak = 0
             break
 
     stats.current_streak = current_streak
