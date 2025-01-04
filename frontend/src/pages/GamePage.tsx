@@ -17,7 +17,7 @@ const GamePage: React.FC = () => {
   const { uuid } = useUser();
   const queryClient = useQueryClient();
 
-  const { data: currentGame } = useQuery({
+  const { data: currentGame, isSuccess: currentGameLoaded } = useQuery({
     ...readCurrentGameOptions({
       path: { user_client_uuid: uuid },
     }),
@@ -48,6 +48,12 @@ const GamePage: React.FC = () => {
       body: { user_client_uuid: uuid },
     });
   };
+
+  useEffect(() => {
+    if (currentGameLoaded && !currentGame && !createGame.isPending && uuid) {
+      handleNewGame();
+    }
+  }, [currentGameLoaded, currentGame, uuid]);
 
   return (
     <div className="game-page">
