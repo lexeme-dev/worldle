@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { ArrowRight, Check } from "react-bootstrap-icons";
 import { GameStatus, GuessItem } from "../client/types.gen";
+import { DistanceUnit, useSettings } from "../contexts/SettingsContext";
 
 interface GuessListProps {
   guesses: GuessItem[];
@@ -9,6 +10,8 @@ interface GuessListProps {
 }
 
 const GuessList: React.FC<GuessListProps> = ({ guesses, gameStatus }) => {
+  const { distanceUnit } = useSettings();
+
   return (
     <div className="guess-list">
       {guesses.map((guess, index) => (
@@ -27,7 +30,9 @@ const GuessList: React.FC<GuessListProps> = ({ guesses, gameStatus }) => {
           ) : (
             <>
               <div className="guess-distance">
-                {Math.round(guess.distance_to_answer_miles)}mi
+                {distanceUnit === DistanceUnit.MILES
+                  ? `${Math.round(guess.distance_to_answer_miles)}mi`
+                  : `${Math.round(guess.distance_to_answer_km)}km`}
               </div>
               <div className="guess-direction">
                 <ArrowRight
