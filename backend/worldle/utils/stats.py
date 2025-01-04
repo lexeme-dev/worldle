@@ -17,7 +17,7 @@ class UserStats(BaseModel):
 
     @computed_field
     def win_rate(self) -> float:
-        return self.num_won / self.num_played
+        return self.num_won / self.num_played if self.num_played > 0 else 0
 
 
 def get_user_stats(user_client_id: int, session: Session) -> UserStats:
