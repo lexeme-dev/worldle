@@ -86,3 +86,40 @@ class CountryItem(CountryBase):
 
 class CountryRead(CountryBase):
     pass
+
+
+class UserClientBase(ApiModel):
+    id: int
+    uuid: str
+
+
+class UserClientRead(UserClientBase):
+    pass
+
+
+class GuessBase(ApiModel):
+    id: int
+    guessed_country_id: int
+    guessed_country: CountryItem
+
+
+class GuessCreate(BaseModel):
+    guessed_country_id: int
+
+
+class GuessRead(GuessBase):
+    pass
+
+
+class GameBase(ApiModel):
+    id: int
+    user_client_id: int
+    answer_country_id: int
+
+
+class GameCreate(BaseModel):
+    user_client_uuid: str
+
+
+class GameRead(GameBase):
+    guesses: list[GuessRead]

@@ -1,16 +1,26 @@
 from collections.abc import Generator
 from typing import Annotated
+from uuid import uuid4
 
 import rl.utils.io
 from diskcache import Cache
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, defer
 
-from worldle.api.interfaces import CountryItem, CountryRead
-from worldle.db.models import Country
+from worldle.api.interfaces import (
+    CountryItem,
+    CountryRead,
+    GameCreate,
+    GameRead,
+    GuessCreate,
+    GuessRead,
+    UserClientRead,
+)
+from worldle.db.models import Country, Game, Guess, UserClient
 from worldle.db.session import get_session
+from worldle.utils.game import MAX_GUESSES
 
 _COUNTRIES_CACHE = Cache(rl.utils.io.get_cache_dir("countries"))
 
@@ -76,3 +86,81 @@ def read_country(
 
     _COUNTRIES_CACHE[cache_key] = CountryRead.model_validate(country)
     return _COUNTRIES_CACHE[cache_key]
+
+
+@app.post(
+    "/user_clients",
+    response_model=UserClientRead,
+    operation_id="createUserClient",
+)
+def create_user_client(db: Annotated[Session, Depends(get_db)]):
+    client = UserClient(uuid=str(uuid4()))
+    db.add(client)
+    db.commit()
+    return client
+
+
+@app.post(
+    "/games",
+    response_model=GameRead,
+    operation_id="createGame",
+)
+def create_game(
+    db: Annotated[Session, Depends(get_db)],
+    game_create: GameCreate,
+):
+    user_client = db.scalar(
+        select(UserClient).where(UserClient.uuid == game_create.user_client_uuid)
+    )
+    if not user_client:
+        raise HTTPException(status_code=404, detail="User client not found")
+
+    # Get random country for answer
+    answer_country = db.scalar(select(Country).order_by(func.random()))
+
+    game = Game(user_client=user_client, answer_country=answer_country)
+    db.add(game)
+    db.commit()
+    return game
+
+
+@app.get(
+    "/games/{game_id}",
+    response_model=GameRead,
+    operation_id="readGame",
+)
+def read_game(
+    db: Annotated[Session, Depends(get_db)],
+    game_id: int,
+):
+    game = db.get(Game, game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return game
+
+
+@app.post(
+    "/games/{game_id}/guesses",
+    response_model=GuessRead,
+    operation_id="createGuess",
+)
+def create_guess(
+    db: Annotated[Session, Depends(get_db)],
+    game_id: int,
+    guess_create: GuessCreate,
+):
+    game = db.get(Game, game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    if len(game.guesses) >= MAX_GUESSES:
+        raise HTTPException(status_code=400, detail="Maximum guesses reached")
+
+    guessed_country = db.get(Country, guess_create.guessed_country_id)
+    if not guessed_country:
+        raise HTTPException(status_code=404, detail="Country not found")
+
+    guess = Guess(game=game, guessed_country=guessed_country)
+    db.add(guess)
+    db.commit()
+    return guess
