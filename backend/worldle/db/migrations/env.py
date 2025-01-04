@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from geoalchemy2 import alembic_helpers
 
 from worldle.db.models import Base
 from worldle.db.session import get_engine
@@ -16,6 +17,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -36,7 +39,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    raise NotImplementedError("This method is not implemented yet.")
+    raise NotImplementedError("Offline migrations are not supported")
 
 
 def run_migrations_online() -> None:
@@ -46,8 +49,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    with get_engine().connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+    connectable = get_engine()
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=alembic_helpers.include_object,
+            process_revision_directives=alembic_helpers.writer,
+            render_item=alembic_helpers.render_item,
+        )
 
         with context.begin_transaction():
             context.run_migrations()

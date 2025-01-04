@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import datetime
-from enum import StrEnum
 
-import sqlalchemy as sa
-from sqlalchemy import func
+import geoalchemy2 as ga
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
+    relationship,
 )
 
 
@@ -23,15 +23,16 @@ class TimestampMixin:
     )
 
 
-class PatternType(StrEnum):
-    NAME = "regex"
-    URL = "url"
-
-
-class ProxyPattern(Base, TimestampMixin):
-    __tablename__ = "proxy_patterns"
+class Country(TimestampMixin, Base):
+    __tablename__ = "countries"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    pattern: Mapped[str] = mapped_column(unique=True)
-    enabled: Mapped[bool] = mapped_column(server_default=sa.text("true"))
-    pattern_type: Mapped[PatternType] = mapped_column(server_default=PatternType.NAME)
+    name: Mapped[str]
+    is_island: Mapped[bool | None]
+    geometry: Mapped[ga.types.Geometry] = mapped_column(
+        ga.Geometry(geometry_type="MULTIPOLYGON", srid=4326)
+    )
+
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("countries.id"))
+
+    parent: Mapped[Country | None] = relationship(back_populates="children")
