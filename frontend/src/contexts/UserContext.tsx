@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext } from "react";
 import { DefaultService } from "../client";
+import { readUserStatsOptions } from "../client/@tanstack/react-query.gen";
 
 const USER_UUID_KEY = "worldle_user_uuid";
 
@@ -61,6 +62,14 @@ export const UserProvider: React.FC<{
       const { data: userClient } = await DefaultService.readUserClient({
         path: { user_client_uuid: storedUuid },
       });
+      if (userClient != null) {
+        queryClient.prefetchQuery({
+          ...readUserStatsOptions({
+            path: { user_client_uuid: userClient.uuid },
+          }),
+          staleTime: 60000 * 5,
+        });
+      }
       return userClient.uuid;
     },
   });

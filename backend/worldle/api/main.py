@@ -4,7 +4,7 @@ from typing import Annotated
 
 import rl.utils.io
 from diskcache import Cache
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, defer
@@ -73,7 +73,9 @@ def get_user_client(
     response_model=list[CountryItem],
     operation_id="listCountries",
 )
-def list_countries(db: Annotated[Session, Depends(get_db)]):
+def list_countries(response: Response, db: Annotated[Session, Depends(get_db)]):
+    response.headers["Cache-Control"] = "public, max-age=86400"  # Cache for 24 hours
+
     cache_key = "__all_countries"
     if cache_key in _COUNTRIES_CACHE:
         return _COUNTRIES_CACHE[cache_key]
@@ -93,8 +95,11 @@ def list_countries(db: Annotated[Session, Depends(get_db)]):
     operation_id="readCountry",
 )
 def read_country(
+    response: Response,
     country: Annotated[Country, Depends(get_country)],
 ):
+    response.headers["Cache-Control"] = "public, max-age=86400"  # Cache for 24 hours
+
     cache_key = f"__country_{country.id}"
     if cache_key in _COUNTRIES_CACHE:
         return _COUNTRIES_CACHE[cache_key]

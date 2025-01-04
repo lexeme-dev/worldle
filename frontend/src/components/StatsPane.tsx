@@ -13,14 +13,15 @@ const StatsPane: React.FC = () => {
       path: { user_client_uuid: uuid },
     }),
     enabled: !!uuid,
-    refetchInterval: 60000,
+    refetchInterval: 60000 * 5,
   });
 
   if (isLoading) {
     return (
-      <div className="content-container">
-        <Spinner animation="border" variant="primary" />
-        <div className="text-center">Loading...</div>
+      <div className="d-flex justify-content-center py-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
       </div>
     );
   }
