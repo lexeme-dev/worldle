@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+
 from worldle.db.models import Base
 from worldle.db.session import get_engine
 

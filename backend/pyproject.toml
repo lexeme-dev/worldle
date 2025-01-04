@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [
     { name = "Faiz Surani", email = "faiz@faizsurani.com" },
 ]
-description = "A worldle project"
+description = "A worldle clone"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
