@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext } from "react";
 import { DefaultService } from "../client";
 
@@ -7,6 +7,8 @@ const USER_UUID_KEY = "worldle_user_uuid";
 interface UserContext {
   uuid: string | undefined;
   isLoading: boolean;
+  changeUserId: (newUuid: string) => Promise<void>;
+  validateUserId: (uuid: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContext | null>(null);
@@ -14,6 +16,8 @@ const UserContext = createContext<UserContext | null>(null);
 export const UserProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const queryClient = useQueryClient();
+
   const createUserClient = useMutation({
     mutationFn: async () => {
       const { data } = await DefaultService.createUserClient();
@@ -21,6 +25,28 @@ export const UserProvider: React.FC<{
       return data.uuid;
     },
   });
+
+  const changeUserIdMutation = useMutation({
+    mutationFn: async (newUuid: string) => {
+      // Verify the UUID exists
+      await DefaultService.readUserClient({
+        path: { user_client_uuid: newUuid },
+      });
+      localStorage.setItem(USER_UUID_KEY, newUuid);
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+
+  const validateUserId = async (uuid: string): Promise<boolean> => {
+    try {
+      await DefaultService.readUserClient({
+        path: { user_client_uuid: uuid },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const { data: uuid, isLoading } = useQuery({
     queryKey: ["user"],
@@ -32,7 +58,6 @@ export const UserProvider: React.FC<{
       }
 
       console.log("Verifying user client", storedUuid);
-      // Verify the stored UUID is valid
       const { data: userClient } = await DefaultService.readUserClient({
         path: { user_client_uuid: storedUuid },
       });
@@ -41,7 +66,14 @@ export const UserProvider: React.FC<{
   });
 
   return (
-    <UserContext.Provider value={{ uuid, isLoading }}>
+    <UserContext.Provider
+      value={{
+        uuid,
+        isLoading,
+        changeUserId: changeUserIdMutation.mutateAsync,
+        validateUserId,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
