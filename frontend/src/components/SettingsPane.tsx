@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Alert, Button, Card, Form, Modal, Stack } from "react-bootstrap";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { InfoCircle } from "react-bootstrap-icons";
+import { Clipboard, InfoCircle } from "react-bootstrap-icons";
 import { DistanceUnit, useSettings } from "../contexts/SettingsContext";
 import { useUser } from "../contexts/UserContext";
 
@@ -141,13 +141,21 @@ const SettingsPane: React.FC = () => {
               </OverlayTrigger>
             </div>
             <div className="d-flex gap-2 align-items-center">
-              <div
-                className="bg-light p-2 rounded text-monospace user-select-all"
+              <Form.Control
+                type="text"
+                value={uuid}
+                readOnly
+                className="text-monospace"
+                style={{ width: "auto" }}
+              />
+              <Button
+                variant="outline-secondary"
+                size="sm"
                 onClick={copyUuid}
-                style={{ cursor: "pointer" }}
+                title="Copy to clipboard"
               >
-                {uuid}
-              </div>
+                <Clipboard />
+              </Button>
               {getChangeButton(false)}
             </div>
           </Stack>
