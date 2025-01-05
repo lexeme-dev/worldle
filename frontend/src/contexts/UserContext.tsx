@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext } from "react";
-import { DefaultService } from "../client";
+import { DefaultService, client } from "../client";
 import { readUserStatsOptions } from "../client/@tanstack/react-query.gen";
 
 const USER_UUID_KEY = "worldle_user_uuid";
@@ -40,10 +40,10 @@ export const UserProvider: React.FC<{
 
   const validateUserId = async (uuid: string): Promise<boolean> => {
     try {
-      await DefaultService.readUserClient({
+      const { data } = await DefaultService.readUserClient({
         path: { user_client_uuid: uuid },
       });
-      return true;
+      return data != null;
     } catch {
       return false;
     }
@@ -68,6 +68,10 @@ export const UserProvider: React.FC<{
             path: { user_client_uuid: userClient.uuid },
           }),
           staleTime: 60000 * 5,
+        });
+        client.interceptors.request.use((request, _) => {
+          request.headers.set("X-Worldle-User-Client-Uuid", userClient.uuid);
+          return request;
         });
       }
       return userClient.uuid;

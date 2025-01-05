@@ -4,7 +4,7 @@ from typing import Annotated
 
 import rl.utils.io
 from diskcache import Cache
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, defer
@@ -59,6 +59,23 @@ def get_user_client(
 ) -> UserClient:
     user_client = db.scalar(
         select(UserClient).where(UserClient.uuid == user_client_uuid)
+    )
+    if not user_client:
+        raise HTTPException(status_code=404, detail="User client not found")
+    return user_client
+
+
+def get_authed_user_client(
+    db: Annotated[Session, Depends(get_db)],
+    x_worldle_user_client_uuid: str | None = Header(None),
+) -> UserClient:
+    if not x_worldle_user_client_uuid:
+        raise HTTPException(
+            status_code=401, detail="X-Worldle-User-Client-Uuid header is required"
+        )
+
+    user_client = db.scalar(
+        select(UserClient).where(UserClient.uuid == x_worldle_user_client_uuid)
     )
     if not user_client:
         raise HTTPException(status_code=404, detail="User client not found")
@@ -169,14 +186,9 @@ def read_user_stats(
 )
 def create_game(
     db: Annotated[Session, Depends(get_db)],
+    user_client: Annotated[UserClient, Depends(get_authed_user_client)],
     game_create: GameCreate,
 ):
-    user_client = db.scalar(
-        select(UserClient).where(UserClient.uuid == game_create.user_client_uuid)
-    )
-    if not user_client:
-        raise HTTPException(status_code=404, detail="User client not found")
-
     active_game = db.scalar(
         select(Game)
         .where(Game.user_client_id == user_client.id)
@@ -212,10 +224,11 @@ def create_game(
 )
 def read_game(
     db: Annotated[Session, Depends(get_db)],
+    user_client: Annotated[UserClient, Depends(get_authed_user_client)],
     game_id: int,
 ):
     game = db.get(Game, game_id)
-    if not game:
+    if not game or game.user_client_id != user_client.id:
         raise HTTPException(status_code=404, detail="Game not found")
     return game
 
@@ -227,11 +240,12 @@ def read_game(
 )
 def create_guess(
     db: Annotated[Session, Depends(get_db)],
+    user_client: Annotated[UserClient, Depends(get_authed_user_client)],
     game_id: int,
     guess_create: GuessCreate,
 ):
     game = db.get(Game, game_id)
-    if not game:
+    if not game or game.user_client_id != user_client.id:
         raise HTTPException(status_code=404, detail="Game not found")
 
     if game.status != GameStatus.IN_PROGRESS:
